@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, url_for, flash, redirect, abo
 # make a Flask application object called app
 app = Flask(__name__)
 app.config["DEBUG"] = True
-
+app.config['SECRET_KEY'] = 'brian secret key'
 
 
 # Function to open a connection to the database.db file
@@ -38,7 +38,25 @@ def index():
 def create():
     #determine if page is being requested with a post or a get
     if request.method == 'POST':
-        pass
+
+        #get title and post content
+        title = request.form['title']
+        content = request.form['content']
+
+        #if no title or content display error
+        if not title:
+            flash("Title is required")
+        elif not content:
+            flash("Content is required")
+
+        #else make a database connection and insert blog post
+        else:
+            conn = get_db_connection()
+            #inset data into databse
+            conn.execute('INSERT INTO posts (title, content) VALUES (?, ?)', (title, content))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('index'))
 
     return render_template('create.html')
 
